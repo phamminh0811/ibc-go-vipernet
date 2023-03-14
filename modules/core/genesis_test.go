@@ -6,7 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/stretchr/testify/suite"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	cometproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	ibc "github.com/cosmos/ibc-go/v7/modules/core"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
@@ -309,7 +309,7 @@ func (suite *IBCTestSuite) TestInitGenesis() {
 		app := simapp.Setup(false)
 
 		suite.NotPanics(func() {
-			ibc.InitGenesis(app.BaseApp.NewContext(false, tmproto.Header{Height: 1}), *app.IBCKeeper, tc.genState)
+			ibc.InitGenesis(app.BaseApp.NewContext(false, cometproto.Header{Height: 1}), *app.IBCKeeper, tc.genState)
 		})
 	}
 }

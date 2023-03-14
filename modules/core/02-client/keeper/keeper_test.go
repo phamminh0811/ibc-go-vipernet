@@ -11,9 +11,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/suite"
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmtypes "github.com/tendermint/tendermint/types"
+	cometbytes "github.com/cometbft/cometbft/libs/bytes"
+	cometproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	comettypes "github.com/cometbft/cometbft/types"
 
 	"github.com/cosmos/ibc-go/v7/modules/core/02-client/keeper"
 	"github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
@@ -59,14 +59,14 @@ type KeeperTestSuite struct {
 	keeper         *keeper.Keeper
 	consensusState *ibctm.ConsensusState
 	header         *ibctm.Header
-	valSet         *tmtypes.ValidatorSet
-	valSetHash     tmbytes.HexBytes
-	privVal        tmtypes.PrivValidator
+	valSet         *comettypes.ValidatorSet
+	valSetHash     cometbytes.HexBytes
+	privVal        comettypes.PrivValidator
 	now            time.Time
 	past           time.Time
 	solomachine    *ibctesting.Solomachine
 
-	signers map[string]tmtypes.PrivValidator
+	signers map[string]comettypes.PrivValidator
 
 	// TODO: deprecate
 	queryClient types.QueryClient
@@ -85,7 +85,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	app := simapp.Setup(isCheckTx)
 
 	suite.cdc = app.AppCodec()
-	suite.ctx = app.BaseApp.NewContext(isCheckTx, tmproto.Header{Height: height, ChainID: testClientID, Time: now2})
+	suite.ctx = app.BaseApp.NewContext(isCheckTx, cometproto.Header{Height: height, ChainID: testClientID, Time: now2})
 	suite.keeper = &app.IBCKeeper.ClientKeeper
 	suite.privVal = ibctestingmock.NewPV()
 
@@ -94,11 +94,11 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 	testClientHeightMinus1 := types.NewHeight(0, height-1)
 
-	validator := tmtypes.NewValidator(pubKey, 1)
-	suite.valSet = tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
+	validator := comettypes.NewValidator(pubKey, 1)
+	suite.valSet = comettypes.NewValidatorSet([]*comettypes.Validator{validator})
 	suite.valSetHash = suite.valSet.Hash()
 
-	suite.signers = make(map[string]tmtypes.PrivValidator, 1)
+	suite.signers = make(map[string]comettypes.PrivValidator, 1)
 	suite.signers[validator.Address.String()] = suite.privVal
 
 	suite.header = suite.chainA.CreateTMClientHeader(testChainID, int64(testClientHeight.RevisionHeight), testClientHeightMinus1, now2, suite.valSet, suite.valSet, suite.valSet, suite.signers)
@@ -107,9 +107,9 @@ func (suite *KeeperTestSuite) SetupTest() {
 	var validators stakingtypes.Validators
 	for i := 1; i < 11; i++ {
 		privVal := ibctestingmock.NewPV()
-		tmPk, err := privVal.GetPubKey()
+		cmtPk, err := privVal.GetPubKey()
 		suite.Require().NoError(err)
-		pk, err := cryptocodec.FromTmPubKeyInterface(tmPk)
+		pk, err := cryptocodec.FromTmPubKeyInterface(cmtPk)
 		suite.Require().NoError(err)
 		val, err := stakingtypes.NewValidator(sdk.ValAddress(pk.Address()), pk, stakingtypes.Description{})
 		suite.Require().NoError(err)

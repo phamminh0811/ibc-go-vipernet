@@ -9,8 +9,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
-	tmtypes "github.com/tendermint/tendermint/types"
+	cometbytes "github.com/cometbft/cometbft/libs/bytes"
+	comettypes "github.com/cometbft/cometbft/types"
 
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
@@ -46,7 +46,7 @@ func ParseDenomTrace(rawDenom string) DenomTrace {
 // Hash returns the hex bytes of the SHA256 hash of the DenomTrace fields using the following formula:
 //
 // hash = sha256(tracePath + "/" + baseDenom)
-func (dt DenomTrace) Hash() tmbytes.HexBytes {
+func (dt DenomTrace) Hash() cometbytes.HexBytes {
 	hash := sha256.Sum256([]byte(dt.GetFullDenomPath()))
 	return hash[:]
 }
@@ -232,13 +232,13 @@ func ValidateIBCDenom(denom string) error {
 }
 
 // ParseHexHash parses a hex hash in string format to bytes and validates its correctness.
-func ParseHexHash(hexHash string) (tmbytes.HexBytes, error) {
+func ParseHexHash(hexHash string) (cometbytes.HexBytes, error) {
 	hash, err := hex.DecodeString(hexHash)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := tmtypes.ValidateHash(hash); err != nil {
+	if err := comettypes.ValidateHash(hash); err != nil {
 		return nil, err
 	}
 

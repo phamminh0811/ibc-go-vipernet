@@ -19,11 +19,11 @@ import (
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmtypes "github.com/tendermint/tendermint/types"
-	dbm "github.com/tendermint/tm-db"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/log"
+	cometproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	comettypes "github.com/cometbft/cometbft/types"
+	dbm "github.com/cometbft/cometbft-db"
 
 	"github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	wasmkeeper "github.com/cosmos/ibc-go/v7/modules/light-clients/08-wasm/keeper"
@@ -63,7 +63,7 @@ func SetupTestingApp() (TestingApp, map[string]json.RawMessage) {
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
-func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, chainID string, powerReduction math.Int, balances ...banktypes.Balance) TestingApp {
+func SetupWithGenesisValSet(t *testing.T, valSet *comettypes.ValidatorSet, genAccs []authtypes.GenesisAccount, chainID string, powerReduction math.Int, balances ...banktypes.Balance) TestingApp {
 	app, genesisState := DefaultTestingAppInit()
 
 	// set genesis accounts
@@ -134,7 +134,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	app.Commit()
 	app.BeginBlock(
 		abci.RequestBeginBlock{
-			Header: tmproto.Header{
+			Header: cometproto.Header{
 				ChainID:            chainID,
 				Height:             app.LastBlockHeight() + 1,
 				AppHash:            app.LastCommitID().Hash,

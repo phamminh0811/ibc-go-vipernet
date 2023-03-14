@@ -5,9 +5,9 @@ import (
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	"github.com/stretchr/testify/suite"
-	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	dbm "github.com/tendermint/tm-db"
+	"github.com/cometbft/cometbft/libs/log"
+	cometproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	dbm "github.com/cometbft/cometbft-db"
 
 	ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
 	controllertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
@@ -37,7 +37,7 @@ func (suite *InterchainAccountsTestSuite) TestInitModule() {
 	appModule, ok := app.GetModuleManager().Modules[types.ModuleName].(ica.AppModule)
 	suite.Require().True(ok)
 
-	header := tmproto.Header{
+	header := cometproto.Header{
 		ChainID: "testchain",
 		Height:  1,
 		Time:    suite.coordinator.CurrentTime.UTC(),
@@ -100,7 +100,7 @@ func (suite *InterchainAccountsTestSuite) TestInitModule() {
 
 			// reset app state
 			app = simapp.NewSimApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, map[int64]bool{}, simapp.DefaultNodeHome, 5, simapp.MakeTestEncodingConfig(), simtestutil.EmptyAppOptions{})
-			header := tmproto.Header{
+			header := cometproto.Header{
 				ChainID: "testchain",
 				Height:  1,
 				Time:    suite.coordinator.CurrentTime.UTC(),

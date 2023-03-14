@@ -7,9 +7,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmtypes "github.com/tendermint/tendermint/types"
+	cometbytes "github.com/cometbft/cometbft/libs/bytes"
+	cometproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	comettypes "github.com/cometbft/cometbft/types"
 
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
@@ -46,10 +46,10 @@ type TendermintTestSuite struct {
 	// TODO: deprecate usage in favor of testing package
 	ctx        sdk.Context
 	cdc        codec.Codec
-	privVal    tmtypes.PrivValidator
-	valSet     *tmtypes.ValidatorSet
-	signers    map[string]tmtypes.PrivValidator
-	valsHash   tmbytes.HexBytes
+	privVal    comettypes.PrivValidator
+	valSet     *comettypes.ValidatorSet
+	signers    map[string]comettypes.PrivValidator
+	valsHash   cometbytes.HexBytes
 	header     *ibctm.Header
 	now        time.Time
 	headerTime time.Time
@@ -84,25 +84,25 @@ func (suite *TendermintTestSuite) SetupTest() {
 
 	heightMinus1 := clienttypes.NewHeight(0, height.RevisionHeight-1)
 
-	val := tmtypes.NewValidator(pubKey, 10)
-	suite.signers = make(map[string]tmtypes.PrivValidator)
+	val := comettypes.NewValidator(pubKey, 10)
+	suite.signers = make(map[string]comettypes.PrivValidator)
 	suite.signers[val.Address.String()] = suite.privVal
-	suite.valSet = tmtypes.NewValidatorSet([]*tmtypes.Validator{val})
+	suite.valSet = comettypes.NewValidatorSet([]*comettypes.Validator{val})
 	suite.valsHash = suite.valSet.Hash()
 	suite.header = suite.chainA.CreateTMClientHeader(chainID, int64(height.RevisionHeight), heightMinus1, suite.now, suite.valSet, suite.valSet, suite.valSet, suite.signers)
-	suite.ctx = app.BaseApp.NewContext(checkTx, tmproto.Header{Height: 1, Time: suite.now})
+	suite.ctx = app.BaseApp.NewContext(checkTx, cometproto.Header{Height: 1, Time: suite.now})
 }
 
-func getAltSigners(altVal *tmtypes.Validator, altPrivVal tmtypes.PrivValidator) map[string]tmtypes.PrivValidator {
-	return map[string]tmtypes.PrivValidator{altVal.Address.String(): altPrivVal}
+func getAltSigners(altVal *comettypes.Validator, altPrivVal comettypes.PrivValidator) map[string]comettypes.PrivValidator {
+	return map[string]comettypes.PrivValidator{altVal.Address.String(): altPrivVal}
 }
 
-func getBothSigners(suite *TendermintTestSuite, altVal *tmtypes.Validator, altPrivVal tmtypes.PrivValidator) (*tmtypes.ValidatorSet, map[string]tmtypes.PrivValidator) {
+func getBothSigners(suite *TendermintTestSuite, altVal *comettypes.Validator, altPrivVal comettypes.PrivValidator) (*comettypes.ValidatorSet, map[string]comettypes.PrivValidator) {
 	// Create bothValSet with both suite validator and altVal. Would be valid update
-	bothValSet := tmtypes.NewValidatorSet(append(suite.valSet.Validators, altVal))
+	bothValSet := comettypes.NewValidatorSet(append(suite.valSet.Validators, altVal))
 	// Create signer array and ensure it is in same order as bothValSet
 	_, suiteVal := suite.valSet.GetByIndex(0)
-	bothSigners := map[string]tmtypes.PrivValidator{
+	bothSigners := map[string]comettypes.PrivValidator{
 		suiteVal.Address.String(): suite.privVal,
 		altVal.Address.String():   altPrivVal,
 	}

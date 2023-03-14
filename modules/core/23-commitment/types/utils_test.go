@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
-	crypto "github.com/tendermint/tendermint/proto/tendermint/crypto"
+	abci "github.com/cometbft/cometbft/abci/types"
+	crypto "github.com/cometbft/cometbft/proto/tendermint/crypto"
 
 	"github.com/cosmos/ibc-go/v7/modules/core/23-commitment/types"
 )

@@ -3,9 +3,9 @@ package tendermint_test
 import (
 	"time"
 
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmtypes "github.com/tendermint/tendermint/types"
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	cometproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	comettypes "github.com/cometbft/cometbft/types"
 
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/cosmos/ibc-go/v7/modules/core/exported"
@@ -33,15 +33,15 @@ func (suite *TendermintTestSuite) TestMisbehaviourValidateBasic() {
 
 	revisionHeight := int64(height.RevisionHeight)
 
-	altVal := tmtypes.NewValidator(altPubKey, revisionHeight)
+	altVal := comettypes.NewValidator(altPubKey, revisionHeight)
 
 	// Create alternative validator set with only altVal
-	altValSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{altVal})
+	altValSet := comettypes.NewValidatorSet([]*comettypes.Validator{altVal})
 
 	// Create signer array and ensure it is in same order as bothValSet
 	bothValSet, bothSigners := getBothSigners(suite, altVal, altPrivVal)
 
-	altSignerArr := []tmtypes.PrivValidator{altPrivVal}
+	altSignerArr := []comettypes.PrivValidator{altPrivVal}
 
 	heightMinus1 := clienttypes.NewHeight(0, height.RevisionHeight-1)
 
@@ -172,13 +172,13 @@ func (suite *TendermintTestSuite) TestMisbehaviourValidateBasic() {
 			},
 			func(misbehaviour *ibctm.Misbehaviour) error {
 				// voteSet contains only altVal which is less than 2/3 of total power (height/1height)
-				wrongVoteSet := tmtypes.NewVoteSet(chainID, int64(misbehaviour.Header1.GetHeight().GetRevisionHeight()), 1, tmproto.PrecommitType, altValSet)
-				blockID, err := tmtypes.BlockIDFromProto(&misbehaviour.Header1.Commit.BlockID)
+				wrongVoteSet := comettypes.NewVoteSet(chainID, int64(misbehaviour.Header1.GetHeight().GetRevisionHeight()), 1, cometproto.PrecommitType, altValSet)
+				blockID, err := comettypes.BlockIDFromProto(&misbehaviour.Header1.Commit.BlockID)
 				if err != nil {
 					return err
 				}
 
-				tmCommit, err := tmtypes.MakeCommit(*blockID, int64(misbehaviour.Header2.GetHeight().GetRevisionHeight()), misbehaviour.Header1.Commit.Round, wrongVoteSet, altSignerArr, suite.now)
+				tmCommit, err := comettypes.MakeCommit(*blockID, int64(misbehaviour.Header2.GetHeight().GetRevisionHeight()), misbehaviour.Header1.Commit.Round, wrongVoteSet, altSignerArr, suite.now)
 				misbehaviour.Header1.Commit = tmCommit.ToProto()
 				return err
 			},
@@ -193,14 +193,14 @@ func (suite *TendermintTestSuite) TestMisbehaviourValidateBasic() {
 			},
 			func(misbehaviour *ibctm.Misbehaviour) error {
 				// voteSet contains only altVal which is less than 2/3 of total power (height/1height)
-				wrongVoteSet := tmtypes.NewVoteSet(chainID, int64(misbehaviour.Header2.GetHeight().GetRevisionHeight()), 1, tmproto.PrecommitType, altValSet)
-				blockID, err := tmtypes.BlockIDFromProto(&misbehaviour.Header2.Commit.BlockID)
+				wrongVoteSet := comettypes.NewVoteSet(chainID, int64(misbehaviour.Header2.GetHeight().GetRevisionHeight()), 1, cometproto.PrecommitType, altValSet)
+				blockID, err := comettypes.BlockIDFromProto(&misbehaviour.Header2.Commit.BlockID)
 				if err != nil {
 					return err
 				}
 
-				tmCommit, err := tmtypes.MakeCommit(*blockID, int64(misbehaviour.Header2.GetHeight().GetRevisionHeight()), misbehaviour.Header2.Commit.Round, wrongVoteSet, altSignerArr, suite.now)
-				misbehaviour.Header2.Commit = tmCommit.ToProto()
+				cmtCommit, err := comettypes.MakeCommit(*blockID, int64(misbehaviour.Header2.GetHeight().GetRevisionHeight()), misbehaviour.Header2.Commit.Round, wrongVoteSet, altSignerArr, suite.now)
+				misbehaviour.Header2.Commit = cmtCommit.ToProto()
 				return err
 			},
 			false,

@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	abcitypes "github.com/tendermint/tendermint/abci/types"
-	tmprotostate "github.com/tendermint/tendermint/proto/tendermint/state"
-	tmstate "github.com/tendermint/tendermint/state"
+	abcitypes "github.com/cometbft/cometbft/abci/types"
+	cometprotostate "github.com/cometbft/cometbft/proto/tendermint/state"
+	cometstate "github.com/cometbft/cometbft/state"
 
 	"github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 )
@@ -98,29 +98,29 @@ func (suite *TypesTestSuite) TestABCICodeDeterminism() {
 	errDifferentABCICode := sdkerrors.ErrNotFound
 
 	deliverTx := sdkerrors.ResponseDeliverTxWithEvents(err, gasUsed, gasWanted, []abcitypes.Event{}, false)
-	responses := tmprotostate.ABCIResponses{
+	responses := cometprotostate.ABCIResponses{
 		DeliverTxs: []*abcitypes.ResponseDeliverTx{
 			&deliverTx,
 		},
 	}
 
 	deliverTxSameABCICode := sdkerrors.ResponseDeliverTxWithEvents(errSameABCICode, gasUsed, gasWanted, []abcitypes.Event{}, false)
-	responsesSameABCICode := tmprotostate.ABCIResponses{
+	responsesSameABCICode := cometprotostate.ABCIResponses{
 		DeliverTxs: []*abcitypes.ResponseDeliverTx{
 			&deliverTxSameABCICode,
 		},
 	}
 
 	deliverTxDifferentABCICode := sdkerrors.ResponseDeliverTxWithEvents(errDifferentABCICode, gasUsed, gasWanted, []abcitypes.Event{}, false)
-	responsesDifferentABCICode := tmprotostate.ABCIResponses{
+	responsesDifferentABCICode := cometprotostate.ABCIResponses{
 		DeliverTxs: []*abcitypes.ResponseDeliverTx{
 			&deliverTxDifferentABCICode,
 		},
 	}
 
-	hash := tmstate.ABCIResponsesResultsHash(&responses)
-	hashSameABCICode := tmstate.ABCIResponsesResultsHash(&responsesSameABCICode)
-	hashDifferentABCICode := tmstate.ABCIResponsesResultsHash(&responsesDifferentABCICode)
+	hash := cometstate.ABCIResponsesResultsHash(&responses)
+	hashSameABCICode := cometstate.ABCIResponsesResultsHash(&responsesSameABCICode)
+	hashDifferentABCICode := cometstate.ABCIResponsesResultsHash(&responsesDifferentABCICode)
 
 	suite.Require().Equal(hash, hashSameABCICode)
 	suite.Require().NotEqual(hash, hashDifferentABCICode)
